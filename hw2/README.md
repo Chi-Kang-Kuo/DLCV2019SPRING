@@ -1,6 +1,4 @@
-
-
-
+#### modified from TA
 
 # HW2 ― Object Detection
 In this assignment, you are given a dataset of aerial images. Your task is to detect and classify the objects present in the images by determining their bounding boxes.
