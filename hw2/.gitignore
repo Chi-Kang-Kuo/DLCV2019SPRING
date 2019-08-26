@@ -8,3 +8,9 @@
 ./ipynb_checkpoints/*
 
 hw2_report_template.docx
+
+/__pycache__/*
+
+/models/*
+
+/save/*
