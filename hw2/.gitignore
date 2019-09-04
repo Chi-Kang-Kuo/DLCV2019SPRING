@@ -11,6 +11,8 @@ hw2_report_template.docx
 
 /__pycache__/*
 
+/utils/__pycache__/*
+
 /models/*
 
 /save/*

@@ -1,0 +1,1 @@
+python predict.py -cfg=./models/vgg16_bn/config.py -utils=./utils -model=./save/vgg16_bn/epoch_59_loss_547.597.pth -img=./hw2_train_val/val1500/images -save=./save/vgg16_bn/predict/

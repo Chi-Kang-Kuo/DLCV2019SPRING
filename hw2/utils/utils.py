@@ -172,7 +172,9 @@ def check_labels(image, label, save_path):
         cv2.rectangle(img, (p1[0] - 2//2, p1[1] - 2 - baseline), (p1[0] + text_size[0], p1[1] + text_size[1]), color, -1)
         cv2.putText(img, label, (p1[0], p1[1] + baseline), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255,255,255), 1, 8)
 
+    os.makedirs(save_path, exist_ok=True)
     cv2.imwrite(os.path.join(save_path, 'result_check_gt.jpg'),img)
+    print('save to ' + os.path.join(save_path, 'result_check_gt.jpg'))
     
     
 def predict_gpu(model, image_name, device):#,root_path='hw2_train_val/val1500/'

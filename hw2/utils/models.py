@@ -7,6 +7,7 @@ import torch.utils.model_zoo as model_zoo
 __all__ = ['vgg16_bn','resnet101']
 model_urls = {
     'vgg16_bn': 'https://download.pytorch.org/models/vgg16_bn-6c64b313.pth',
+    'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
     'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
 }
 
@@ -283,6 +284,28 @@ def Yolov1_resnet101(pretrained=False, progress=True, **kwargs):
     return yolo
 
 
+def Yolov1_resnet50(pretrained=False, progress=True, **kwargs):
+    r"""ResNet-50 model from
+    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        progress (bool): If True, displays a progress bar of the download to stderr
+    """
+    yolo = _resnet('resnet50', Bottleneck, [3, 4, 6, 3], False, progress, 
+                   **kwargs)
+    if pretrained:
+        resnet_state_dict = model_zoo.load_url(model_urls['resnet50'])
+        yolo_state_dict = yolo.state_dict()
+        #print('yolo:', yolo_state_dict.keys())
+        #print('resent:', resnet_state_dict.keys())
+        for k in resnet_state_dict.keys():
+            if k in yolo_state_dict.keys():
+                yolo_state_dict[k] = resnet_state_dict[k]
+
+    yolo.load_state_dict(yolo_state_dict)
+    return yolo
+
+
 def test():
     import torch
 #     model = Yolov1_vgg16bn(pretrained=True)
@@ -290,7 +313,12 @@ def test():
 #     output = model(img)
 #     print(output.size())
     
-    model = Yolov1_resnet101(pretrained=True)
+#     model = Yolov1_resnet101(pretrained=True)
+#     img = torch.rand(1,3,448,448)
+#     output = model(img)
+#     print(output.size())
+    
+    model = Yolov1_resnet50(pretrained=True)
     img = torch.rand(1,3,448,448)
     output = model(img)
     print(output.size())

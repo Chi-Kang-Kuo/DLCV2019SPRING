@@ -1,11 +1,12 @@
 '''
-python predict.py $1 $2
+python predict.py 
 '''
 import os
 import cv2
 import sys
 import glob
 import torch
+import argparse
 import numpy as np
 import pandas as pd
 import torchvision.transforms as transforms
@@ -14,12 +15,15 @@ from PIL import Image
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-cfg', '--config_path', type=str, help='The path of the config.py file.', default='config.py')
-parser.add_argument('-utils', '--utils_path', type=str, default='./utils', help='The path to save trained models.')
+parser.add_argument('-utils', '--utils_path', type=str, default='./utils', help='The path of utils scripts')
+parser.add_argument('-model', '--model_path', type=str, help='The path of trained models.')
+parser.add_argument('-img', '--img_path', type=str, default='./hw2_train_val/val1500/images', help='The path of trained models.')
+parser.add_argument('-save', '--save_path', type=str, help='The path of trained models.')
 args = parser.parse_args()
 
 # import from utils folder
-sys.path.append(os.path.dirname(args.config_path))
-from models import *
+sys.path.insert(1, args.utils_path)
+from models import Yolov1_vgg16bn, Yolov1_resnet101, Yolov1_resnet50
 from torch.utils.data import Dataset, DataLoader
 from utils import nms, decoder, predict_gpu
 
@@ -28,20 +32,11 @@ sys.path.append(os.path.dirname(args.config_path))
 import config
 CFG = config.cfg
 
-#import model architecture
-which_model = int(sys.argv[3])
-if which_model == 0:
-    import models
-    MODEL_PATH = 'models/baseline_model.pth'
-elif which_model == 1:
-    import improved_model as models
-    MODEL_PATH = 'save/improved/improved_model.pth'
-else:
-    print('wrong model!')
-    
+
+MODEL_PATH = args.model_path
 # PATH
-IMAGE_PATH = sys.argv[1]  #'hw2_train_val/val1500/images'
-SAVE_PATH = sys.argv[2]   #'Prediction_14to7_2'
+IMAGE_PATH = args.img_path  #'hw2_train_val/val1500/images'
+SAVE_PATH = args.save_path   #'Prediction_14to7_2'
 
 # mkdir
 if os.path.isdir(SAVE_PATH) == False:
@@ -69,7 +64,7 @@ Color = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0], [0, 0, 128], [128, 
          [64, 128, 128], [192, 128, 128], [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0], [0, 64, 128]]
 
 # load model
-model = models.Yolov1_vgg16bn(pretrained=True).to(device)
+model = eval(CFG.model)(pretrained=True).to(device)
 print('load model...')
 model.load_state_dict(torch.load(MODEL_PATH))
 model.eval() # set eval mode
