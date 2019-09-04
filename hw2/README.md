@@ -13,6 +13,21 @@ In the starter code of this repository, we have provided a shell script for down
     bash ./get_dataset.sh
 The shell script will automatically download the dataset and store the data in a folder called `hw2_train_val`. Note that this command by default only works on Linux. If you are using other operating systems, you should download the dataset from [this link](https://docs.google.com/uc?export=download&id=1dWX3wxwH4F9WRRk2GZJLHNRW5mv4HnPk) and unzip the compressed file manually.
 
+### Training
+In the `config.py` of the folder 'models', you can modify the settings of training.
+To train your model, you can use the following command.
+```
+bash train.sh
+```
+After you have finished your training, the trained models would be saved to the folder `save`
+
+### Predicting
+To do inference of your model, you can run the command below.
+```
+bash predict.sh
+```
+The predicted labels will be saved to the path you provide in `predict.sh`
+
 ### Evaluation
 To evaluate your model, you can run the provided evaluation script provided in the starter code by using the following command.
 
