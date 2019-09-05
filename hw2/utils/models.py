@@ -4,7 +4,7 @@ import torch
 import torch.utils.model_zoo as model_zoo
 
 
-__all__ = ['vgg16_bn','resnet101']
+__all__ = ['vgg16_bn','resnet50','resnet101']
 model_urls = {
     'vgg16_bn': 'https://download.pytorch.org/models/vgg16_bn-6c64b313.pth',
     'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
