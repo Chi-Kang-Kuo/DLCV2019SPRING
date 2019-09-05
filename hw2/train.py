@@ -62,9 +62,9 @@ print('Output a image to check gt labels are correct.')
 check_labels(images[0], labels[0], args.save_img_path)
 
 # Use GPU if available, otherwise stick with cpu
-use_cuda = torch.cuda.is_available() # return True or False 
+cuda = torch.cuda.is_available() # return True or False 
 torch.manual_seed(123)
-device = torch.device("cuda" if use_cuda else "cpu")
+device = torch.device("cuda" if cuda else "cpu")
 print('Device used:', device)
 
 # model
@@ -87,7 +87,7 @@ for key, value in params_dict.items():
         params += [{'params':[value],'lr':learning_rate*1}]
     else:
         params += [{'params':[value],'lr':learning_rate}]
-#optimizer = torch.optim.SGD(params, lr=learning_rate, momentum=0.9, weight_decay=5e-4)
+        
 optimizer = torch.optim.Adam(params,lr=learning_rate,weight_decay=1e-4)
 scheduler_cosine = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, CFG.train_epochs)
 scheduler_warmup = GradualWarmupScheduler(optimizer, multiplier=8, total_epoch=10, after_scheduler=scheduler_cosine)
@@ -112,17 +112,6 @@ for epoch in range(num_epoch):
     val_loss = 0.0
     
     net.train()
-    
-#     if epoch == 0:
-#         learning_rate = 0.0001
-#     elif epoch == 1:
-#         learning_rate = 0.0001
-#     elif epoch == 2:
-#         learning_rate = 0.001
-#     elif epoch == 30:
-#         learning_rate = 0.0001
-#     elif epoch == 40:
-#         learning_rate = 0.00001
     
     for param_group in optimizer.param_groups:
         param_group['lr'] = learning_rate
@@ -156,7 +145,7 @@ for epoch in range(num_epoch):
     for i,(images,target) in enumerate(train_loader):
         optimizer.zero_grad()
         
-        if use_cuda:
+        if cuda:
             images, target = images.to(device), target.to(device)
         
         train_pred = net(images)
@@ -176,7 +165,7 @@ for epoch in range(num_epoch):
 
         for i,(images,target) in enumerate(valid_loader):
             
-            if use_cuda:
+            if cuda:
                 images, target = images.to(device), target.to(device)
 
             val_pred = net(images)
@@ -202,13 +191,3 @@ for epoch in range(num_epoch):
             print ('Model Saved!')
             f.write('Epoch: %d Model Saved!\n' % epoch+1)
         
-        
-#     if best_valid_loss > validation_loss:
-#         best_valid_loss = validation_loss
-#         print('get best test loss %.5f' % best_valid_loss)
-#         torch.save(net.state_dict(), args.save_path) #'save/baseline_model.pth'
-#         print ('Model Saved!')
-        
-#         # log
-#         with open('save/log_baseline_model.txt','w') as f:
-#             f.write(str(epoch)+'\t'+str(best_valid_loss)+'\n')
