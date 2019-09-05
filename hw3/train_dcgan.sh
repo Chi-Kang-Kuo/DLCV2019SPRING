@@ -1,0 +1,1 @@
+python train_dcgan.py -cfg=./models/GAN/ -save_model=./save/dcgan/models -save_img=./save/dcgan/imgs
