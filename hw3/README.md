@@ -1,5 +1,4 @@
-### Modified from TA's README
-
+Modified from TA's README.
 
 
 # HW3 ― GAN, ACGAN and UDA
