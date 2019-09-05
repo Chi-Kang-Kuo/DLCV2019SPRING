@@ -10,12 +10,6 @@ In this assignment, you are given datasets of human face and digit images. You w
 
 For more details, please click [this link](https://1drv.ms/p/s!AmVnxPwdjNF2gZtOUMO5HEEQqLB8Ew) to view the slides of HW3.
 
-# Usage
-To start working on this assignment, you should clone this repository into your local machine by using the following command.
-
-    git clone https://github.com/dlcv-spring-2019/hw3-<username>.git
-Note that you should replace `<username>` with your own GitHub username.
-
 ### Dataset
 In the starter code of this repository, we have provided a shell script for downloading and extracting the dataset for this assignment. For Linux users, simply use the following command.
 
