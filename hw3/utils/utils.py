@@ -21,10 +21,8 @@ class CelebA(Dataset):
         filenames.sort(key=lambda x: int(x.split('/')[-1][:-4])) #sort by png order
         # read attribute label
         df = pd.read_csv('hw3_data/face/train.csv')
-        attri_label = df['Blond_Hair'].values.tolist()
-    
-        #print(filenames)
-        #txtnames = [os.path.join(txt_dir, item.split('/')[-1][:-4]+'.txt') for item in filenames]
+        attri_label = df['Smiling'].values.tolist()   #'Smiling' or 'Blond_Hair' or ......
+        
         for fn,tn in list(zip(filenames,attri_label)):
             self.filenames.append((fn,tn))
             #print(fn,tn)

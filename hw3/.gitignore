@@ -6,3 +6,4 @@
 
 /save/*
 
+/models/GAN/__pycache__/*.pyc

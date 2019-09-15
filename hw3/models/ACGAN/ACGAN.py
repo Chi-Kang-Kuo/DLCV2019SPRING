@@ -16,7 +16,7 @@ class Generator(nn.Module):
         self.ngpu = ngpu
         self.gen = nn.Sequential(
             # input is Z, going into a convolution
-            nn.ConvTranspose2d( nz, ngf * 8, 4, 1, 0, bias=False),
+            nn.ConvTranspose2d( nz + 1, ngf * 8, 4, 1, 0, bias=False),  # + 1 for class
             nn.BatchNorm2d(ngf * 8),
             nn.ReLU(True),
             # state size. (ngf*8) x 4 x 4
@@ -61,9 +61,27 @@ class Discriminator(nn.Module):
             nn.BatchNorm2d(ndf * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*8) x 4 x 4
-            nn.Conv2d(in_channels=ndf * 8, out_channels=1, kernel_size=4, stride=1, padding=0, bias=False),
+            
+        )
+        self.output = nn.Sequential(
+            nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
             nn.Sigmoid()
+            #nn.Linear(ndf * 8 * 4 * 4, 1), #ndf = 64, 64*8*4*4 = 8912
+            #nn.Sigmoid()
         )
 
-    def forward(self, x):
-        return self.dis(x)
+        self.classifier = nn.Sequential(
+            nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
+            nn.Sigmoid()
+            #nn.Linear(ndf * 8 * 4 * 4, 1), #ndf = 64, 64*8*4*4 = 8912
+            #nn.Sigmoid()
+        )
+
+    def forward(self, img):
+        hidden = self.dis(img)
+        #hidden = hidden.view(img.size()[0],-1)
+        #print(img.size()[0])
+        #print(hidden.size())  #  torch.Size([128, 512, 4, 4]) #128*512*4 = 262144
+        output = self.output(hidden)
+        classes = self.classifier(hidden)
+        return output, classes

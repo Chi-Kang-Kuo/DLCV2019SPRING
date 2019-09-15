@@ -1,5 +1,5 @@
 '''
-Training DCGAN
+Training ACGAN
 '''
 import os
 import sys
@@ -29,7 +29,7 @@ from torch.utils.data import DataLoader
 # import from config file
 sys.path.insert(1, args.config)
 import config
-from DCGAN import Generator, Discriminator, weights_init
+from ACGAN import Generator, Discriminator, weights_init
 CFG = config.cfg
 nc = CFG.nc
 nz = CFG.nz
@@ -81,7 +81,6 @@ criterion = torch.nn.BCELoss()
 # Initialize generator and discriminator
 netG = Generator(nc, nz, ngf, ndf, ngpu).to(device)
 netD = Discriminator(nc, nz, ngf, ndf, ngpu).to(device)
-print(netD)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
@@ -102,7 +101,11 @@ torch.manual_seed(manualSeed)
 np.random.seed(manualSeed)
 
 # Create batch of latent vectors that we will use to visualize the progression of the generator
-fixed_noise = torch.randn(64, nz, 1, 1, device=device)
+fixed_noise = torch.randn(10, nz, 1, 1, device=device)
+fixed_noise_1 = torch.cat((fixed_noise, torch.zeros((10, 1, 1, 1), device=device)), dim=1)
+fixed_noise_2 = torch.cat((fixed_noise, torch.ones((10, 1, 1, 1), device=device)), dim=1)
+fixed_noise = torch.cat((fixed_noise_1, fixed_noise_2), dim=0)  
+print("Size of fixed noise: ", fixed_noise.size())  # (20, nz+1, 1, 1)
 
 # Establish convention for real and fake labels during training
 real_label = 1
@@ -134,23 +137,25 @@ for epoch in range(num_epochs):
         b_size = real_cpu.size(0)
         label = torch.full((b_size,), real_label, device=device)
         # Forward pass real batch through D
-        output = netD(real_cpu).view(-1)
+        output, output_cls = netD(real_cpu)   #.view(-1)
         # Calculate loss on all-real batch
-        errD_real = criterion(output, label)
+        errD_real = criterion(output.view(-1), label) + criterion(output_cls.view(-1), data[1].to(device))
         # Calculate gradients for D in backward pass
         errD_real.backward()
         D_x = output.mean().item()
 
         ## Train with all-fake batch
         # Generate batch of latent vectors
-        noise = torch.randn(b_size, nz, 1, 1, device=device)
+        #print('data[1]:', data[1].shape)  #[128]
+        noise = torch.randn(b_size, nz, 1, 1, device=device)  # +1 for class
+        noise = torch.cat((noise, data[1].view(b_size, 1, 1, 1).to(device)), dim=1)
         # Generate fake image batch with G
         fake = netG(noise)
         label.fill_(fake_label)
         # Classify all fake batch with D
-        output = netD(fake.detach()).view(-1)
+        output, output_cls = netD(fake.detach())   #.view(-1)
         # Calculate D's loss on the all-fake batch
-        errD_fake = criterion(output, label)
+        errD_fake = criterion(output.view(-1), label) + criterion(output_cls.view(-1), data[1].to(device))
         # Calculate the gradients for this batch
         errD_fake.backward()
         D_G_z1 = output.mean().item()
@@ -165,9 +170,9 @@ for epoch in range(num_epochs):
         netG.zero_grad()
         label.fill_(real_label)  # fake labels are real for generator cost
         # Since we just updated D, perform another forward pass of all-fake batch through D
-        output = netD(fake).view(-1)
+        output, output_cls = netD(fake)  # .view(-1)
         # Calculate G's loss based on this output
-        errG = criterion(output, label)
+        errG = criterion(output.view(-1), label) + criterion(output_cls.view(-1), data[1].to(device))
         # Calculate gradients for G
         errG.backward()
         D_G_z2 = output.mean().item()
@@ -188,13 +193,13 @@ for epoch in range(num_epochs):
         if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
             with torch.no_grad():
                 fake = netG(fixed_noise).detach().cpu()
-            img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+            img_list.append(vutils.make_grid(fake, nrow=10, padding=2, normalize=True))
 
         iters += 1
     # save model
     if (epoch+1) % 5 == 0:
         state = {
-            'model': 'GAN',
+            'model': 'ACGAN',
             'epoch': epoch,
             'state_dict': [netG.state_dict(), netD.state_dict()],
             'optimizer': [optimizerG.state_dict(), optimizerD.state_dict()],

@@ -1,0 +1,1 @@
+python train_acgan.py -cfg=./models/ACGAN/ -save_model=./save/acgan/models -save_img=./save/acgan/imgs
